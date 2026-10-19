@@ -2,6 +2,17 @@
 
 Status and instructions for whoever picks this up next (person or AI assistant).
 
+## IN PROGRESS (latest first) — read this before continuing
+- **2026-10-19 ~16:00 MT — Week-at-a-glance calendar (NOT saved yet in either flow).** Goal: in each coach email, a grid with days (Tue–Fri of the class week) as columns and rows Coach / New Coach-Shadow; each cell shows `scheduled / needed` (e.g. `6 / 9`), how many are open, and highlights the coach's own shifts green with "✓ You".
+  - Building inside a Scope named **Week calendar** in the sign-up flow, placed between "Build schedule table" and "Send an email (V2)". Unsaved steps so far: `Coach email` (Compose: `toLower(trim(variables('formEmail')))`), `Get week signups` (Get items on Coach Sign-up, filter `concat('BookingStatus eq ''Scheduled'' and StartDate ge ''', utcNow(), '''')`), `Select` (just added).
+  - If the editor was closed without saving, these are gone — start the Scope over using the design below.
+  - Design (one place to edit per class = the `Week shifts` Compose):
+    1. `Week rows` (Select) from `body('Get_week_signups')?['value']`, map `s` = `item()?['StartDate']`, `t` = `item()?['Title']`, `e` = `toLower(coalesce(item()?['Coach_x0020_Email'],''))` (needed because raw Get items keys like `@odata.etag` break `xml()`).
+    2. `Week shifts` (Compose) JSON array, 8 entries in order Coach Tue–Fri then Shadow Tue–Fri, e.g. `{"d":"Tue Oct 27","t":"2:30-5:30 PM","r":"Coach","s":"2026-10-27T20:30:00Z","n":9}` (Fri start `18:30:00Z`, "12:30-3:30 PM").
+    3. `Week cells` (Select, text mode) from `outputs('Week_shifts')`; each cell counts with `int(xpath(X, concat('string(count(//i[s="', item()?['s'], '" and ', <role test>, ']))')))` where `X = xml(json(concat('{"r":{"i":', string(body('Week_rows')), '}}')))` and role test is `contains(t,"Shadow")` or `not(contains(t,"Shadow"))`; "mine" adds `and e="<Coach email>"`.
+    4. `Week calendar HTML` (Compose): table with header from `outputs('Week_shifts')[0..3]`, row "Coach" = `join(take(body('Week_cells'),4),'')`, row "New Coach / Shadow" = `join(skip(body('Week_cells'),4),'')`.
+    5. Add `outputs('Week_calendar_HTML')` to the end of the email body. Then copy the Scope into the cancellation flow (inside True → For each, after Update item) and change only `Coach email` to `toLower(trim(outputs('Get_response_details')?['body/r64602f342b564569810f2c1c9c4661e7']))`.
+
 ## Goal
 Make it easy for CIT coaches (many outside the City of Golden tenant) to sign up for, change, and see their coaching shifts. SharePoint stays the source of truth. Bookings was rejected.
 
