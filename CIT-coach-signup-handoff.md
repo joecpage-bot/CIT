@@ -3,6 +3,7 @@
 Status and instructions for whoever picks this up next (person or AI assistant).
 
 ## IN PROGRESS (latest first) — read this before continuing
+- **2026-10-19 ~16:45 MT — SAVED (sign-up flow):** Scope **Week calendar** now contains, in order: `Coach email`, `Get week signups`, `Week rows` (Select s/t/e — verified in code view), `Week shifts` (Compose, 8-entry JSON for Oct 27–30). Flow saved with no errors; emails unchanged so far (Scope output not used yet). **Next:** add `Week cells` (Select, text mode) and `Week calendar HTML` (Compose) per the design below, add `outputs('Week_calendar_HTML')` to the email body, save, test; then copy the Scope to the cancellation flow.
 - **2026-10-19 ~16:00 MT — Week-at-a-glance calendar (NOT saved yet in either flow).** Goal: in each coach email, a grid with days (Tue–Fri of the class week) as columns and rows Coach / New Coach-Shadow; each cell shows `scheduled / needed` (e.g. `6 / 9`), how many are open, and highlights the coach's own shifts green with "✓ You".
   - Building inside a Scope named **Week calendar** in the sign-up flow, placed between "Build schedule table" and "Send an email (V2)". Unsaved steps so far: `Coach email` (Compose: `toLower(trim(variables('formEmail')))`), `Get week signups` (Get items on Coach Sign-up, filter `concat('BookingStatus eq ''Scheduled'' and StartDate ge ''', utcNow(), '''')`), `Select` (just added).
   - If the editor was closed without saving, these are gone — start the Scope over using the design below.
